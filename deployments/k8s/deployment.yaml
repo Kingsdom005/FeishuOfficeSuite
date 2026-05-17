@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feishu-app
+  namespace: feishu-suite
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: feishu-app
+  template:
+    metadata:
+      labels:
+        app: feishu-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: feishu-app
+          image: feishu-office-suite:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+            - containerPort: 9000
+              name: grpc
+            - containerPort: 9090
+              name: metrics
+          envFrom:
+            - secretRef:
+                name: feishu-secrets
+          env:
+            - name: MYSQL_DSN
+              valueFrom:
+                configMapKeyRef:
+                  name: feishu-config
+                  key: database.dsn
+            - name: REDIS_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: feishu-config
+                  key: redis.addr
+            - name: KAFKA_BROKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: feishu-config
+                  key: kafka.brokers
+            - name: OTEL_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: feishu-config
+                  key: open_telemetry.endpoint
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: config
+              mountPath: /app/configs
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: feishu-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feishu-worker
+  namespace: feishu-suite
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: feishu-worker
+  template:
+    metadata:
+      labels:
+        app: feishu-worker
+    spec:
+      containers:
+        - name: worker
+          image: feishu-office-suite:latest
+          imagePullPolicy: IfNotPresent
+          command: ["./worker"]
+          envFrom:
+            - secretRef:
+                name: feishu-secrets
+          env:
+            - name: MYSQL_DSN
+              valueFrom:
+                configMapKeyRef:
+                  name: feishu-config
+                  key: database.dsn
+            - name: REDIS_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: feishu-config
+                  key: redis.addr
+            - name: KAFKA_BROKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: feishu-config
+                  key: kafka.brokers
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      volumes:
+        - name: config
+          configMap:
+            name: feishu-config

@@ -1,0 +1,173 @@
+syntax = "proto3";
+
+package api.feishu.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/feishu/feishu-office-suite/api/feishu/v1;v1";
+
+service FeishuMessage {
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+  rpc SendTextMessage(SendTextMessageRequest) returns (SendMessageResponse);
+  rpc SendImageMessage(SendImageMessageRequest) returns (SendMessageResponse);
+  rpc SendCardMessage(SendCardMessageRequest) returns (SendMessageResponse);
+  rpc GetMessage(GetMessageRequest) returns (GetMessageResponse);
+  rpc ListMessages(ListMessagesRequest) returns (ListMessagesResponse);
+  rpc UpdateMessage(UpdateMessageRequest) returns (google.protobuf.Empty);
+  rpc DeleteMessage(DeleteMessageRequest) returns (google.protobuf.Empty);
+  rpc ReplyMessage(ReplyMessageRequest) returns (SendMessageResponse);
+}
+
+message Message {
+  string message_id = 1;
+  string chat_id = 2;
+  string sender = 3;
+  string sender_id = 4;
+  string sender_type = 5;
+  string content = 6;
+  string msg_type = 7;
+  bool is_deleted = 8;
+  google.protobuf.Timestamp create_time = 9;
+  google.protobuf.Timestamp update_time = 10;
+}
+
+message SendMessageRequest {
+  string receive_id = 1;
+  string receive_id_type = 2;
+  string msg_type = 3;
+  string content = 4;
+}
+
+message SendMessageResponse {
+  Message message = 1;
+}
+
+message SendTextMessageRequest {
+  string receive_id = 1;
+  string receive_id_type = 2;
+  string text = 3;
+}
+
+message SendImageMessageRequest {
+  string receive_id = 1;
+  string receive_id_type = 2;
+  string image_key = 3;
+}
+
+message SendCardMessageRequest {
+  string receive_id = 1;
+  string receive_id_type = 2;
+  string card_content = 3;
+  bool is_preview = 4;
+}
+
+message GetMessageRequest {
+  string message_id = 1;
+}
+
+message GetMessageResponse {
+  Message message = 1;
+}
+
+message ListMessagesRequest {
+  string chat_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+  string sort_type = 4;
+  google.protobuf.Timestamp start_time = 5;
+  google.protobuf.Timestamp end_time = 6;
+}
+
+message ListMessagesResponse {
+  repeated Message messages = 1;
+  bool has_more = 3;
+  string next_page_token = 4;
+}
+
+message UpdateMessageRequest {
+  string message_id = 1;
+  string content = 2;
+  string msg_type = 3;
+}
+
+message DeleteMessageRequest {
+  string message_id = 1;
+}
+
+message ReplyMessageRequest {
+  string message_id = 1;
+  string content = 2;
+  string msg_type = 3;
+}
+
+message Chat {
+  string chat_id = 1;
+  string name = 2;
+  string description = 3;
+  int32 member_count = 4;
+  string owner_id = 5;
+  string owner_id_type = 6;
+  bool is_activated = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+service FeishuChat {
+  rpc GetChat(GetChatRequest) returns (GetChatResponse);
+  rpc ListChats(ListChatsRequest) returns (ListChatsResponse);
+  rpc CreateChat(CreateChatRequest) returns (CreateChatResponse);
+  rpc UpdateChat(UpdateChatRequest) returns (google.protobuf.Empty);
+  rpc DeleteChat(DeleteChatRequest) returns (google.protobuf.Empty);
+  rpc AddMembers(AddChatMembersRequest) returns (google.protobuf.Empty);
+  rpc RemoveMembers(RemoveChatMembersRequest) returns (google.protobuf.Empty);
+}
+
+message GetChatRequest {
+  string chat_id = 1;
+}
+
+message GetChatResponse {
+  Chat chat = 1;
+}
+
+message ListChatsRequest {
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListChatsResponse {
+  repeated Chat chats = 1;
+  bool has_more = 2;
+  string next_page_token = 3;
+}
+
+message CreateChatRequest {
+  string name = 1;
+  string description = 2;
+  string owner_id = 3;
+  repeated string member_ids = 4;
+}
+
+message CreateChatResponse {
+  Chat chat = 1;
+}
+
+message UpdateChatRequest {
+  string chat_id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message DeleteChatRequest {
+  string chat_id = 1;
+}
+
+message AddChatMembersRequest {
+  string chat_id = 1;
+  repeated string member_ids = 2;
+}
+
+message RemoveChatMembersRequest {
+  string chat_id = 1;
+  repeated string member_ids = 2;
+}

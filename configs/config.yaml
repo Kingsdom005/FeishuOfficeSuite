@@ -1,0 +1,47 @@
+server:
+  http:
+    network: tcp
+    timeout: 60
+  grpc:
+    network: tcp
+    timeout: 60
+
+database:
+  dsn: ${MYSQL_DSN:feishu:feishu123@tcp(mysql:3306)/feishu_suite?charset=utf8mb4&parseTime=True&loc=Local}
+  max_open_conns: 100
+  max_idle_conns: 10
+  max_lifetime: 3600
+
+redis:
+  addr: ${REDIS_ADDR:redis:6379}
+  password: ${REDIS_PASSWORD:}
+  db: 0
+  pool_size: 100
+
+kafka:
+  brokers:
+    - ${KAFKA_BROKERS:kafka:9092}
+  topic: feishu-events
+
+asynq:
+  redis:
+    addr: ${REDIS_ADDR:redis:6379}
+    password: ${REDIS_PASSWORD:}
+    db: 1
+
+feishu:
+  app_id: ${FEISHU_APP_ID:your_app_id}
+  app_secret: ${FEISHU_APP_SECRET:your_app_secret}
+  token: ${FEISHU_TOKEN:}
+
+open_telemetry:
+  endpoint: ${OTEL_ENDPOINT:otel-collector:4317}
+
+metrics:
+  enabled: true
+  port: 9090
+
+registry:
+  consul:
+    address: ${CONSUL_ADDRESS:consul:8500}
+    timeout: 5

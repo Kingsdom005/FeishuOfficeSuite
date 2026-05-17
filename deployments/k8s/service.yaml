@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: feishu-service
+  namespace: feishu-suite
+spec:
+  type: LoadBalancer
+  selector:
+    app: feishu-app
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+    - name: grpc
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: feishu-suite
+spec:
+  type: ClusterIP
+  selector:
+    app: mysql
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: 3306
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: feishu-suite
+spec:
+  type: ClusterIP
+  selector:
+    app: redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: feishu-suite
+spec:
+  type: ClusterIP
+  selector:
+    app: kafka
+  ports:
+    - name: kafka
+      port: 9092
+      targetPort: 9092
+      protocol: TCP
+    - name: kafka-internal
+      port: 29092
+      targetPort: 29092
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: consul
+  namespace: feishu-suite
+spec:
+  type: ClusterIP
+  selector:
+    app: consul
+  ports:
+    - name: consul
+      port: 8500
+      targetPort: 8500
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: feishu-suite
+spec:
+  type: ClusterIP
+  selector:
+    app: otel-collector
+  ports:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+    - name: prometheus
+      port: 8889
+      targetPort: 8889
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: feishu-ingress
+  namespace: feishu-suite
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: feishu.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: feishu-service
+                port:
+                  name: http

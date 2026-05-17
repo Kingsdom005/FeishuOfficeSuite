@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feishu-config
+  namespace: feishu-suite
+data:
+  config.yaml: |
+    server:
+      http:
+        network: tcp
+        timeout: 60
+      grpc:
+        network: tcp
+        timeout: 60
+
+    database:
+      dsn: "feishu:feishu123@tcp(mysql.feishu-suite.svc.cluster.local:3306)/feishu_suite?charset=utf8mb4&parseTime=True&loc=Local"
+      max_open_conns: 100
+      max_idle_conns: 10
+      max_lifetime: 3600
+
+    redis:
+      addr: "redis.feishu-suite.svc.cluster.local:6379"
+      password: ""
+      db: 0
+      pool_size: 100
+
+    kafka:
+      brokers:
+        - "kafka.feishu-suite.svc.cluster.local:29092"
+      topic: feishu-events
+
+    asynq:
+      redis:
+        addr: "redis.feishu-suite.svc.cluster.local:6379"
+        password: ""
+        db: 1
+
+    feishu:
+      app_id: "your_app_id"
+      app_secret: "your_app_secret"
+      token: ""
+
+    open_telemetry:
+      endpoint: "otel-collector.feishu-suite.svc.cluster.local:4317"
+
+    metrics:
+      enabled: true
+      port: 9090
+
+    registry:
+      consul:
+        address: "consul.feishu-suite.svc.cluster.local:8500"
+        timeout: 5

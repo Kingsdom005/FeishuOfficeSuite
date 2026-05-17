@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package api.feishu.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/feishu/feishu-office-suite/api/feishu/v1;v1";
+
+service FeishuUser {
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse);
+  rpc GetUserByPhone(GetUserByPhoneRequest) returns (GetUserByPhoneResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
+  rpc GetDepartments(GetDepartmentsRequest) returns (GetDepartmentsResponse);
+  rpc GetUserDepartments(GetUserDepartmentsRequest) returns (GetUserDepartmentsResponse);
+}
+
+message User {
+  string id = 1;
+  string union_id = 2;
+  string open_id = 3;
+  string name = 4;
+  string en_name = 5;
+  string email = 6;
+  string phone = 7;
+  string avatar_url = 8;
+  string avatar_thumb = 9;
+  string avatar_middle = 10;
+  string status = 11;
+  bool is_activated = 12;
+  bool is_tenant_access = 13;
+  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp updated_at = 15;
+}
+
+message Department {
+  string department_id = 1;
+  string name = 2;
+  string name_en = 3;
+  string parent_id = 4;
+  int32 order = 5;
+  bool is_root = 6;
+  int32 member_count = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message GetUserRequest {
+  string user_id = 1;
+  string user_id_type = 2;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message GetUserByEmailResponse {
+  User user = 1;
+}
+
+message GetUserByPhoneRequest {
+  string phone = 1;
+}
+
+message GetUserByPhoneResponse {
+  User user = 1;
+}
+
+message ListUsersRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  repeated string user_ids = 3;
+  string department_id = 4;
+  bool include_resigned = 5;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  int32 total_count = 2;
+  bool has_more = 3;
+  string next_page_token = 4;
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string en_name = 2;
+  string email = 3;
+  string phone = 4;
+  string department_id = 5;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message UpdateUserRequest {
+  string user_id = 1;
+  string user_id_type = 2;
+  string name = 3;
+  string en_name = 4;
+  string email = 5;
+  string phone = 6;
+  string department_id = 7;
+}
+
+message UpdateUserResponse {
+  User user = 1;
+}
+
+message DeleteUserRequest {
+  string user_id = 1;
+  string user_id_type = 2;
+}
+
+message GetDepartmentsRequest {
+  string parent_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message GetDepartmentsResponse {
+  repeated Department departments = 1;
+  int32 total_count = 2;
+  bool has_more = 3;
+  string next_page_token = 4;
+}
+
+message GetUserDepartmentsRequest {
+  string user_id = 1;
+  string user_id_type = 2;
+}
+
+message GetUserDepartmentsResponse {
+  repeated Department departments = 1;
+}
